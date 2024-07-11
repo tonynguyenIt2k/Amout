@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Giá và Xuất Hóa Đơn</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="icon" href="download.png" type="image/x-icon" sizes="192x192" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 28px;
+            color: #4CAF50;
+        }
+
+        h2 {
+            margin-top: 40px;
+            font-size: 22px;
+            color: #666;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input,
+        select,
+        .select2-container {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            color: #333;
+            position: initial;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table {
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            background-color: #4CAF50;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .table tbody tr {
+            background-color: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .table tbody tr:nth-of-type(even) {
+            background-color: #f1f1f1;
+        }
+
+        .table tfoot tr {
+            background-color: #e0e0e0;
+        }
+
+        .text-end {
+            text-align: end;
+        }
+
+        .select2-container--default .select2-selection--single {
+            border-radius: 6px;
+            padding: 0;
+            height: 48px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            padding: 12px 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>ƯỚC TÍNH GIÁ TRỊ ĐƠN HÀNG</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div>
+                    <label for="product-name">Tên sản phẩm:</label>
+                    <input type="text" id="product-name" placeholder="Nhập tên sản phẩm">
+
+                    <label for="product-code">Mã hàng:</label>
+                    <input type="text" id="product-code" placeholder="Nhập mã hàng">
+
+                    <label for="size">Kích thước:</label>
+                    <input type="text" id="size" placeholder="Nhập kích thước">
+
+                    <label for="quantity">Số lượng:</label>
+                    <input type="number" id="quantity" placeholder="Nhập số lượng">
+
+                    <label for="unit">Đơn vị tính:</label>
+                    <select id="unit">
+                        <option value="kg" selected>Kg</option>
+                        <option value="cai">Cái</option>
+                    </select>
+
+                    <label for="weight-per-item" id="weight-label" style="display:none;">Cân nặng của 1 cái (Kg):</label>
+                    <input type="number" id="weight-per-item" placeholder="Nhập cân nặng của 1 cái" style="display:none;">
+
+                    <label for="material">Loại chất liệu:</label>
+                    <select id="material">
+                        <option value="satdac">Sắt đặc</option>
+                        <option value="sathop">Sắt hộp</option>
+                        <option value="sathop_tho">Sắt hộp chữ thọ</option>
+                        <option value="cum_sat_hop">Cụm sắt hộp</option>
+                        <option value="inox">Inox</option>
+                        <option value="inox_hop">Inox hộp</option>
+                        <option value="laplatron">Lập là trơn</option>
+                        <option value="laplacanhoa">Lập là can hoa</option>
+                        <option value="gang">Gang</option>
+                        <option value="gatgu_14">Gật gù(14)</option>
+                        <option value="gatgu_16">Gật gù(16)</option>
+                        <option value="gatgu_20">Gật gù(20)</option>
+                    </select>
+
+                    <label for="price-type">Loại giá:</label>
+                    <select id="price-type">
+                        <option value="banle">Bán lẻ</option>
+                        <option value="banbuon">Bán buôn</option>
+                        <option value="theocum">Theo cụm</option>
+                    </select>
+
+                    <button onclick="addProduct()">Thêm sản phẩm</button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div>
+                    <h2>Hóa Đơn</h2>
+                    
+                        <table id="invoice-table" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên</th>
+                                    <th>Mã hàng</th>
+                                    <th>Kích thước</th>
+                                    <th>Số lượng</th>
+                                    <th>ĐVT</th>
+                                    <th>Chất liệu</th>
+                                    <th>Loại giá</th>
+                                    <th>Đơn giá</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoice-body">
+                                <!-- Các sản phẩm sẽ được thêm vào đây -->
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="9" class="text-end fw-bold">Tổng cộng:</td>
+                                    <td id="total-amount"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    
+                    <label for="filename">Tên file:</label>
+                    <input type="text" id="filename" placeholder="Nhập tên file (ví dụ: hoa_don)" value="hoa_don">
+                    <button onclick="exportToExcel()">Xuất Hóa Đơn</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#unit').select2();
+            $('#material').select2();
+            $('#price-type').select2();
+
+            // Set giá trị mặc định là "kg"
+            $('#unit').val('kg').trigger('change');
+
+            // Initialize DataTable
+            $('#invoice-table').DataTable({
+                "paging": true,
+                "info": true,
+                "searching": true,
+                "ordering": true,
+                "scrollX": true // Thêm thuộc tính scrollX
+            });
+
+            // Add event listener for unit change
+            $('#unit').on('change', toggleWeightInput);
+
+            // Initial call to set the display of weight input
+            toggleWeightInput();
+        });
+
+        const prices = {
+            satdac: { banle: 26500, banbuon: 25000 },
+            sathop: { banle: 32500, banbuon: 30500 },
+            cum_sat_hop: { banle: 38500, banbuon: 36500 },
+            sathop_tho: { banle: 36500, banbuon: 36500 },
+            inox: { banle: 83500, theocum: 80000 },
+            inox_hop: { banle: 53500, theocum: 50000 },
+            laplatron: { banle: 35000, banbuon: 30000 },
+            laplacanhoa: { banle: 42000, banbuon: 40000 },
+            gang: { banle: 44000, banbuon: 44000 },
+            gatgu_14: { banle: 26000, banbuon: 24000 },
+            gatgu_16: { banle: 30000, banbuon: 28000 },
+            gatgu_20: { banle: 34000, banbuon: 32000 }
+        };
+
+        let products = [];
+        let totalAmount = 0;
+
+        function toggleWeightInput() {
+            const unit = document.getElementById('unit').value;
+            const weightLabel = document.getElementById('weight-label');
+            const weightInput = document.getElementById('weight-per-item');
+            if (unit === 'cai') {
+                weightLabel.style.display = 'block';
+                weightInput.style.display = 'block';
+            } else {
+                weightLabel.style.display = 'none';
+                weightInput.style.display = 'none';
+            }
+        }
+
+        function addProduct() {
+            const productName = document.getElementById('product-name').value;
+            const productCode = document.getElementById('product-code').value;
+            const size = document.getElementById('size').value;
+            const quantity = document.getElementById('quantity').value;
+            const unit = document.getElementById('unit').value;
+            const material = document.getElementById('material').value;
+            const priceType = document.getElementById('price-type').value;
+            const weightPerItem = unit === 'cai' ? document.getElementById('weight-per-item').value : 1;
+
+            const price = prices[material][priceType];
+            const amount = unit === "cai" ? quantity * weightPerItem * price : quantity * price;
+
+            products.push({ productName, productCode, size, quantity, unit, material, priceType, price, amount });
+            totalAmount += amount;
+
+            updateInvoice();
+        }
+
+        function updateInvoice() {
+            const table = $('#invoice-table').DataTable();
+            table.clear();
+
+            products.forEach((product, index) => {
+                table.row.add([
+                    index + 1,
+                    product.productName,
+                    product.productCode,
+                    product.size,
+                    product.quantity,
+                    product.unit,
+                    product.material,
+                    product.priceType,
+                    parseInt(product.price).toLocaleString('vi-VN'),
+                    parseInt(product.amount).toLocaleString('vi-VN')
+                ]).draw();
+            });
+
+            document.getElementById('total-amount').innerText = `${totalAmount.toLocaleString('vi-VN')} VND`;
+        }
+
+        function exportToExcel() {
+            // Lấy tên file từ ô nhập
+            const filename = document.getElementById('filename').value.trim() || 'hoa_don';
+
+            // Tạo một workbook mới
+            const wb = XLSX.utils.book_new();
+
+            // Tạo một sheet mới với dữ liệu từ bảng hóa đơn
+            const ws = XLSX.utils.table_to_sheet(document.querySelector('#invoice-table'));
+
+            // Thêm sheet vào workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Hóa Đơn');
+
+            // Tạo một file Excel và tải về với tên file người dùng nhập
+            XLSX.writeFile(wb, `${filename}.xlsx`);
+        }
+    </script>
+</body>
+
+</html>
